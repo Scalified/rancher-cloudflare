@@ -36,15 +36,14 @@ The following environment variables must be provided:
 
 #### Assembling
 
-1. Build the Project:
-  `./gradlew clean build`
-2. Build Docker image:
-  `docker build . -t <tag> --build-arg JAR_FILE=rancher-cloudflare/rancher-cloudflare.jar`
+1. Build the Project:  
+   `./gradlew clean build`
+2. Build Docker image:  
+   `docker build . -t <tag> --build-arg JAR_FILE=rancher-cloudflare/rancher-cloudflare.jar`
 
 ## Scalified Links
 
 * [Scalified](https://www.scalified.com)
 * [Scalified Official Facebook Page](https://www.facebook.com/scalified)
 * <a href="mailto:info@scalified.com?subject=[Rancher Cloudflare]: Proposals And Suggestions">Scalified Support</a>
-
-* [SweetCV - Online Resume Builder](https://sweetcv.com)
+* [**SweetCV - Online Resume Builder**](https://sweetcv.com)
