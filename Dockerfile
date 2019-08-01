@@ -6,4 +6,4 @@ WORKDIR /application
 
 COPY $JAR_FILE app.jar
 
-ENTRYPOINT ["java", "-Xmx32m -Xss256k", "-Djava.security.egd=file:/dev/./urandom", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom", "-jar", "app.jar"]
