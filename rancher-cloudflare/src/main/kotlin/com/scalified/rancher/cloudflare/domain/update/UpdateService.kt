@@ -45,13 +45,13 @@ class UpdateService(private val ingressService: IngressService, private val dnsS
 			val removed = dnsService.findRemoved(hosts, records)
 
 			if (added.isEmpty() && removed.isEmpty()) {
-				logger.info { "Skipping update since nothing changed" }
+				logger.debug { "Skipping update since nothing changed" }
 			} else {
 				if (added.isNotEmpty()) added.forEach(dnsService::add)
 				if (removed.isNotEmpty()) removed.forEach(dnsService::remove)
 			}
 		} else {
-			logger.info { "Skipping update since no ingress entries found" }
+			logger.debug { "Skipping update since no ingress entries found" }
 		}
 	}
 
