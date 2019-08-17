@@ -6,7 +6,7 @@
 
 ## Description
 
-The project automatically detects ingress records within [Rancher](https://rancher.com/) and applies changes on [Cloudflare](https://www.cloudflare.com/) DNS
+The project automatically synchronizes [Rancher](https://rancher.com/) ingress records to [Cloudflare](https://www.cloudflare.com/) DNS 
 
 ## Dockerhub
 
@@ -39,7 +39,7 @@ The following environment variables must be provided:
 1. Build the Project:  
    `./gradlew clean build`
 2. Build Docker image:  
-   `docker build -t scalified/rancher-cloudflare . --build-arg JAR_FILE=rancher-cloudflare/build/libs/rancher-cloudflare.jar`
+   `docker build . -t scalified/rancher-cloudflare`
 
 ## Scalified Links
 

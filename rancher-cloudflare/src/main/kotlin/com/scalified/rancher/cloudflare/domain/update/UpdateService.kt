@@ -25,8 +25,7 @@
 
 package com.scalified.rancher.cloudflare.domain.update
 
-import com.scalified.rancher.cloudflare.domain.cloudflare.CloudflareDnsCache
-import com.scalified.rancher.cloudflare.domain.dns.DnsService
+import com.scalified.rancher.cloudflare.domain.cloudflare.dns.DnsService
 import com.scalified.rancher.cloudflare.domain.rancher.ingress.IngressService
 import mu.KotlinLogging
 
@@ -39,37 +38,20 @@ private val logger = KotlinLogging.logger {}
 class UpdateService(private val ingressService: IngressService, private val dnsService: DnsService) {
 
 	fun update() {
-		if (CloudflareDnsCache.isUpdating.get()) {
-			logger.debug { "Skipping ingress update since DNS cache is currently updating" }
-		} else {
-			logger.debug { "Updating ingress DNS records" }
-			CloudflareDnsCache.isUpdating.set(true)
-			try {
-				val hosts = ingressService.hosts()
-				if (hosts.isNotEmpty()) {
-					if (CloudflareDnsCache.isEmpty()) {
-						logger.info { "Populating DNS cache with Cloudflare existing DNS entries" }
-						CloudflareDnsCache.populate(dnsService.records())
-						logger.info {
-							"Populated DNS cache with " +
-									"${CloudflareDnsCache.size()} existing Cloudflare DNS record(s)"
-						}
-					}
-					val added = dnsService.findAdded(hosts)
-					val removed = dnsService.findRemoved(hosts)
-					if (added.isEmpty() && removed.isEmpty()) {
-						logger.debug { "Skipping update since nothing changed" }
-					} else {
-						if (added.isNotEmpty()) added.forEach(dnsService::add)
-						if (removed.isNotEmpty()) removed.forEach(dnsService::remove)
-						CloudflareDnsCache.populate(dnsService.records())
-					}
-				} else {
-					logger.trace { "Skipping update since no ingress entries found" }
-				}
-			} finally {
-				CloudflareDnsCache.isUpdating.set(false)
+		val hosts = ingressService.hosts()
+		if (hosts.isNotEmpty()) {
+			val records = dnsService.records()
+			val added = dnsService.findAdded(hosts, records)
+			val removed = dnsService.findRemoved(hosts, records)
+
+			if (added.isEmpty() && removed.isEmpty()) {
+				logger.debug { "Skipping update since nothing changed" }
+			} else {
+				if (added.isNotEmpty()) added.forEach(dnsService::add)
+				if (removed.isNotEmpty()) removed.forEach(dnsService::remove)
 			}
+		} else {
+			logger.debug { "Skipping update since no ingress entries found" }
 		}
 	}
 

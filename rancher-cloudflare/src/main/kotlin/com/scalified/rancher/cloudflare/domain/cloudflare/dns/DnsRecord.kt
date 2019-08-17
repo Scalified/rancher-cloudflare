@@ -23,7 +23,7 @@
  *
  */
 
-package com.scalified.rancher.cloudflare.domain.dns
+package com.scalified.rancher.cloudflare.domain.cloudflare.dns
 
 /**
  * @author shell

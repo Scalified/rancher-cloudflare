@@ -26,7 +26,7 @@
 package com.scalified.rancher.cloudflare.infrastructure
 
 import com.scalified.rancher.cloudflare.domain.cloudflare.CloudflareClient
-import com.scalified.rancher.cloudflare.domain.dns.DnsService
+import com.scalified.rancher.cloudflare.domain.cloudflare.dns.DnsService
 import com.scalified.rancher.cloudflare.domain.rancher.RancherClient
 import com.scalified.rancher.cloudflare.domain.rancher.ingress.IngressService
 import com.scalified.rancher.cloudflare.domain.update.UpdateScheduler
