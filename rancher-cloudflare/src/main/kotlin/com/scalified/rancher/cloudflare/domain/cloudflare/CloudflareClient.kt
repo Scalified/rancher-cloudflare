@@ -25,14 +25,18 @@
 
 package com.scalified.rancher.cloudflare.domain.cloudflare
 
-import com.scalified.rancher.cloudflare.domain.dns.DnsRecord
+import com.scalified.rancher.cloudflare.domain.cloudflare.dns.DnsRecord
+import com.scalified.rancher.cloudflare.infrastructure.commons.HealthResponseErrorHandler
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.actuate.health.Health
+import org.springframework.boot.actuate.health.HealthIndicator
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.http.HttpEntity
 import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.web.client.getForObject
 import org.springframework.web.client.postForObject
+import java.util.concurrent.atomic.AtomicReference
 
 /**
  * @author shell
@@ -44,7 +48,7 @@ class CloudflareClient(
 		@Value("%{CLOUDFLARE_EMAIL}") private val email: String,
 		@Value("%{CLOUDFLARE_ZONE_ID}") private val zoneId: String,
 		@Value("%{CLOUDFLARE_API_KEY}") private val apiKey: String
-) {
+) : HealthIndicator {
 
 	private val client = RestTemplateBuilder().interceptors(
 			listOf(ClientHttpRequestInterceptor { request, body, execution ->
@@ -53,6 +57,7 @@ class CloudflareClient(
 				execution.execute(request, body)
 			})
 	).rootUri("https://api.cloudflare.com/client/v4/zones/$zoneId")
+			.errorHandler(HealthResponseErrorHandler(health))
 			.build()
 
 	fun records(): List<DnsRecord> {
@@ -64,19 +69,31 @@ class CloudflareClient(
 		}
 
 		val records = records(1)
+		health.set(Health.up().build())
 		logger.debug { "Fetched ${records.size} DNS records from Cloudflare" }
 		return records
 	}
 
 	fun add(record: DnsRecord): DnsRecord {
 		val result = client.postForObject<DnsRecordPostResponseDto>("/dns_records", HttpEntity(record))
+		health.set(Health.up().build())
 		logger.debug { "Added Cloudflare $record DNS record" }
 		return record.copy(id = result?.dnsRecord?.id)
 	}
 
 	fun remove(id: String) {
 		client.delete("/dns_records/$id")
+		health.set(Health.up().build())
 		logger.debug { "Deleted Cloudflare $id DNS record" }
+	}
+
+	override fun health(): Health = health.get()
+
+	companion object {
+
+		@JvmStatic
+		private val health = AtomicReference(Health.up().build())
+
 	}
 
 }

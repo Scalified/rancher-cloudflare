@@ -29,13 +29,16 @@ spring:
   output:
     ansi:
       enabled: always
+management:
+  endpoint:
+    health:
+      show-details: always
 server:
   tomcat:
     max-threads: 2
-
 logging:
   level:
-    com.scalified.rancher.cloudflare: INFO
+    com.scalified.rancher.cloudflare: TRACE
 
 app:
-  schedule: '*/30 * * * * *'
+  schedule: '0 * * * * *'

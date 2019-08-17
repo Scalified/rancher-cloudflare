@@ -23,10 +23,9 @@
  *
  */
 
-package com.scalified.rancher.cloudflare.domain.dns
+package com.scalified.rancher.cloudflare.domain.cloudflare.dns
 
 import com.scalified.rancher.cloudflare.domain.cloudflare.CloudflareClient
-import com.scalified.rancher.cloudflare.domain.cloudflare.CloudflareDnsCache
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 
@@ -44,10 +43,26 @@ class DnsService(
 
 	fun records(): List<DnsRecord> = client.records().filter { it.type in listOf(A, TXT) }
 
-	fun add(host: String) {
-		client.add(DnsRecord(A, host, ipAddress, true))
-		client.add(DnsRecord(TXT, host, txtContent(host)))
-		logger.info { "Added Cloudflare DNS record for $host host" }
+	fun findAdded(hosts: List<String>, records: List<DnsRecord>): List<DnsRecord> = hosts.filterNot { host ->
+		records.any { it.type == A && it.name.startsWith(host) }
+	}.flatMap { host ->
+		listOf(DnsRecord(A, host, ipAddress, true), DnsRecord(TXT, host, txtContent(host))).filterNot {
+			it.type == TXT && records.any { record -> record.type == TXT && record.content == it.content }
+		}
+	}
+
+	fun findRemoved(hosts: List<String>, records: List<DnsRecord>): List<DnsRecord> = records.groupBy { it.name }
+			.filterValues { recs ->
+				recs.size > 1
+						&& recs.any { it.type == A && it.content == ipAddress }
+						&& recs.any { record ->
+					record.type == TXT && hosts.none { record.content == txtContent(it) }
+				}
+			}.values.flatten()
+
+	fun add(record: DnsRecord) {
+		val added = client.add(record)
+		logger.info { "Added $added Cloudflare DNS record" }
 	}
 
 	fun remove(record: DnsRecord) {
@@ -55,23 +70,6 @@ class DnsService(
 			client.remove(it)
 			logger.info { "Removed Cloudflare $record DNS record" }
 		}
-	}
-
-	fun findAdded(hosts: List<String>): List<String> = hosts.filterNot { host ->
-		CloudflareDnsCache.records().any { it.name.startsWith(host) }
-	}
-
-	fun findRemoved(hosts: List<String>): List<DnsRecord> {
-		val grouped = CloudflareDnsCache.records().groupBy { it.name }
-				.filterValues { records ->
-					records.size > 1
-							&& records.any { it.type == A && it.content == ipAddress }
-							&& records.any { record ->
-						record.type == TXT && hosts.none { record.content == txtContent(it) }
-					}
-				}
-
-		return grouped.values.flatten()
 	}
 
 	private fun txtContent(host: String) = "app=$applicationName;host=$host;ipAddress=$ipAddress"

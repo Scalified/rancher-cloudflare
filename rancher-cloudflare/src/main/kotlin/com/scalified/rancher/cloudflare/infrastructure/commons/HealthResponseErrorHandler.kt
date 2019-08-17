@@ -20,34 +20,31 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
-package com.scalified.rancher.cloudflare.domain.cloudflare
+package com.scalified.rancher.cloudflare.infrastructure.commons
 
-import com.scalified.rancher.cloudflare.domain.dns.DnsRecord
-import java.util.*
-import java.util.concurrent.atomic.AtomicBoolean
+import org.springframework.boot.actuate.health.Health
+import org.springframework.http.HttpMethod
+import org.springframework.http.client.ClientHttpResponse
+import org.springframework.web.client.DefaultResponseErrorHandler
+import java.net.URI
+import java.util.concurrent.atomic.AtomicReference
 
 /**
  * @author shell
- * @since 2019-07-31
+ * @since 2019-08-06
  */
-object CloudflareDnsCache {
+class HealthResponseErrorHandler(private val health: AtomicReference<Health>) : DefaultResponseErrorHandler() {
 
-	val isUpdating = AtomicBoolean()
-
-	private val records: MutableList<DnsRecord> = Collections.synchronizedList(mutableListOf<DnsRecord>())
-
-	fun populate(records: List<DnsRecord>) {
-		this.records.clear()
-		this.records += records
+	override fun handleError(url: URI, method: HttpMethod, response: ClientHttpResponse) {
+		try {
+			super.handleError(url, method, response)
+			health.set(Health.down().build())
+		} catch (e: Exception) {
+			health.set(Health.down().withException(e).build())
+			throw e
+		}
 	}
-
-	fun isEmpty() = records.isEmpty()
-
-	fun size() = records.size
-
-	fun records() = records.toList()
 
 }

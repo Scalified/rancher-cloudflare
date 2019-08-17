@@ -29,12 +29,16 @@ import com.scalified.rancher.cloudflare.domain.rancher.ingress.Ingress
 import com.scalified.rancher.cloudflare.domain.rancher.ingress.IngressesDto
 import com.scalified.rancher.cloudflare.domain.rancher.project.Project
 import com.scalified.rancher.cloudflare.domain.rancher.project.ProjectsDto
+import com.scalified.rancher.cloudflare.infrastructure.commons.HealthResponseErrorHandler
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.actuate.health.Health
+import org.springframework.boot.actuate.health.HealthIndicator
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.http.HttpHeaders
 import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.web.client.getForObject
+import java.util.concurrent.atomic.AtomicReference
 
 /**
  * @author shell
@@ -47,7 +51,7 @@ class RancherClient(
 		@Value("%{RANCHER_ACCESS_KEY}") private val accessKey: String,
 		@Value("%{RANCHER_SECRET_KEY}") private val secretKey: String,
 		@Value("%{spring.application.name}") private val userAgent: String
-) {
+) : HealthIndicator {
 
 	private val client = RestTemplateBuilder().basicAuthentication(accessKey, secretKey)
 			.interceptors(listOf(ClientHttpRequestInterceptor { request, body, execution ->
@@ -55,6 +59,7 @@ class RancherClient(
 				execution.execute(request, body)
 			}))
 			.rootUri("$url/v3")
+			.errorHandler(HealthResponseErrorHandler(health))
 			.build()
 
 	fun projects(): List<Project> {
@@ -66,6 +71,7 @@ class RancherClient(
 		}
 
 		val projects = projects("/projects?limit=100")
+		health.set(Health.up().build())
 		logger.debug { "Fetched ${projects.size} project(s) from Rancher" }
 		return projects
 	}
@@ -79,8 +85,18 @@ class RancherClient(
 		}
 
 		val ingresses = ingresses(url = "/projects/$projectId/ingresses?limit=100")
+		health.set(Health.up().build())
 		logger.debug { "Fetched ${ingresses.size} ingress(es) for $projectId project from Rancher" }
 		return ingresses
+	}
+
+	override fun health(): Health = health.get()
+
+	companion object {
+
+		@JvmStatic
+		private val health = AtomicReference(Health.up().build())
+
 	}
 
 }

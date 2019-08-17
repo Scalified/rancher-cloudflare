@@ -26,7 +26,7 @@
 package com.scalified.rancher.cloudflare.domain.cloudflare
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.scalified.rancher.cloudflare.domain.dns.DnsRecord
+import com.scalified.rancher.cloudflare.domain.cloudflare.dns.DnsRecord
 
 /**
  * @author shell
