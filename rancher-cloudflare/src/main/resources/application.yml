@@ -38,7 +38,7 @@ server:
     max-threads: 2
 logging:
   level:
-    com.scalified.rancher.cloudflare: INFO
+    com.scalified.rancher.cloudflare: TRACE
 
 app:
   schedule: '0 * * * * *'
