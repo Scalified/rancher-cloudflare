@@ -29,6 +29,7 @@ import com.scalified.rancher.cloudflare.domain.rancher.ingress.Ingress
 import com.scalified.rancher.cloudflare.domain.rancher.ingress.IngressesDto
 import com.scalified.rancher.cloudflare.domain.rancher.project.Project
 import com.scalified.rancher.cloudflare.domain.rancher.project.ProjectsDto
+import com.scalified.rancher.cloudflare.infrastructure.AppProperties
 import com.scalified.rancher.cloudflare.infrastructure.commons.HealthResponseErrorHandler
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
@@ -46,27 +47,23 @@ import java.util.concurrent.atomic.AtomicReference
  */
 private val logger = KotlinLogging.logger {}
 
-class RancherClient(
-		@Value("%{RANCHER_URL}") private val url: String,
-		@Value("%{RANCHER_ACCESS_KEY}") private val accessKey: String,
-		@Value("%{RANCHER_SECRET_KEY}") private val secretKey: String,
-		@Value("%{spring.application.name}") private val userAgent: String
-) : HealthIndicator {
+class RancherClient(private val properties: AppProperties) : HealthIndicator {
 
-	private val client = RestTemplateBuilder().basicAuthentication(accessKey, secretKey)
-			.interceptors(listOf(ClientHttpRequestInterceptor { request, body, execution ->
-				request.headers[HttpHeaders.USER_AGENT] = listOf(userAgent)
-				execution.execute(request, body)
-			}))
-			.rootUri("$url/v3")
-			.errorHandler(HealthResponseErrorHandler(health))
-			.build()
+	private val client = RestTemplateBuilder()
+		.basicAuthentication(properties.rancher.accessKey, properties.rancher.secretKey)
+		.interceptors(listOf(ClientHttpRequestInterceptor { request, body, execution ->
+			request.headers[HttpHeaders.USER_AGENT] = listOf(properties.name)
+			execution.execute(request, body)
+		}))
+		.rootUri("${properties.rancher.url}/v3")
+		.errorHandler(HealthResponseErrorHandler(health))
+		.build()
 
 	fun projects(): List<Project> {
 		fun projects(url: String): List<Project> {
 			val result = client.getForObject<ProjectsDto>(url)
-			val next = result?.next()
-			val projects = result?.projects.orEmpty()
+			val next = result.next()
+			val projects = result.projects
 			return if (next == null) projects else projects + projects(next)
 		}
 
@@ -79,8 +76,8 @@ class RancherClient(
 	fun ingresses(projectId: String): List<Ingress> {
 		fun ingresses(url: String): List<Ingress> {
 			val result = client.getForObject<IngressesDto>(url)
-			val next = result?.next()
-			val ingresses = result?.ingresses.orEmpty()
+			val next = result.next()
+			val ingresses = result.ingresses
 			return if (next == null) ingresses else ingresses + ingresses(next)
 		}
 

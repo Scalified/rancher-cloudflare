@@ -35,10 +35,20 @@ management:
       show-details: always
 server:
   tomcat:
-    max-threads: 2
+    threads.max: 2
 logging:
   level:
     com.scalified.rancher.cloudflare: INFO
 
-app:
-  schedule: '0 * * * * *'
+name: ${spring.application.name}
+schedule: '0 * * * * *'
+rancher:
+  url:
+  access-key:
+  secret-key:
+cloudflare:
+  ip-address:
+  zone-id:
+  api-key:
+  email:
+  proxied: true

@@ -33,13 +33,13 @@ import com.scalified.rancher.cloudflare.domain.cloudflare.dns.DnsRecord
  * @since 2019-07-31
  */
 data class DnsRecordsGetDto(
-		@JsonProperty("result") val records: List<DnsRecord>,
-		@JsonProperty("result_info") val resultInfo: ResultInfo
+	@JsonProperty("result") val records: List<DnsRecord>,
+	@JsonProperty("result_info") val resultInfo: ResultInfo
 )
 
 data class ResultInfo(
-		@JsonProperty("page") val pageNumber: Int,
-		@JsonProperty("total_pages") val pageCount: Int
+	@JsonProperty("page") val pageNumber: Int,
+	@JsonProperty("total_pages") val pageCount: Int
 )
 
 data class DnsRecordPostResponseDto(@JsonProperty("result") val dnsRecord: DnsRecord)

@@ -32,6 +32,4 @@ allprojects {
         mavenCentral()
     }
     
-    val junitVersion by extra("5.5.1")
-
 }

@@ -34,6 +34,6 @@ import com.scalified.rancher.cloudflare.domain.rancher.api.RancherApi
  * @since 2019-07-29
  */
 data class ProjectsDto(
-		@JsonProperty("data") val projects: List<Project>,
-		override val pagination: Pagination
+	@JsonProperty("data") val projects: List<Project>,
+	override val pagination: Pagination
 ) : RancherApi

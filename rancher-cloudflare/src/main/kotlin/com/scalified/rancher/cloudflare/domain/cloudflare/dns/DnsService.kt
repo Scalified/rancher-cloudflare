@@ -26,6 +26,7 @@
 package com.scalified.rancher.cloudflare.domain.cloudflare.dns
 
 import com.scalified.rancher.cloudflare.domain.cloudflare.CloudflareClient
+import com.scalified.rancher.cloudflare.infrastructure.AppProperties
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 
@@ -35,30 +36,29 @@ import org.springframework.beans.factory.annotation.Value
  */
 private val logger = KotlinLogging.logger {}
 
-class DnsService(
-		private val client: CloudflareClient,
-		@Value("%{spring.application.name}") private val applicationName: String,
-		@Value("%{IP_ADDRESS}") private val ipAddress: String
-) {
+class DnsService(private val client: CloudflareClient, private val properties: AppProperties) {
 
 	fun records(): List<DnsRecord> = client.records().filter { it.type in listOf(A, TXT) }
 
 	fun findAdded(hosts: List<String>, records: List<DnsRecord>): List<DnsRecord> = hosts.filterNot { host ->
 		records.any { it.type == A && it.name.startsWith(host) }
 	}.flatMap { host ->
-		listOf(DnsRecord(A, host, ipAddress, true), DnsRecord(TXT, host, txtContent(host))).filterNot {
+		listOf(
+			DnsRecord(A, host, properties.cloudflare.ipAddress, properties.cloudflare.proxied),
+			DnsRecord(TXT, host, txtContent(host))
+		).filterNot {
 			it.type == TXT && records.any { record -> record.type == TXT && record.content == it.content }
 		}
 	}
 
 	fun findRemoved(hosts: List<String>, records: List<DnsRecord>): List<DnsRecord> = records.groupBy { it.name }
-			.filterValues { recs ->
-				recs.size > 1
-						&& recs.any { it.type == A && it.content == ipAddress }
-						&& recs.any { record ->
-					record.type == TXT && hosts.none { record.content == txtContent(it) }
-				}
-			}.values.flatten()
+		.filterValues { recs ->
+			recs.size > 1
+					&& recs.any { it.type == A && it.content == properties.cloudflare.ipAddress }
+					&& recs.any { record ->
+				record.type == TXT && hosts.none { record.content == txtContent(it) }
+			}
+		}.values.flatten()
 
 	fun add(record: DnsRecord) {
 		val added = client.add(record)
@@ -72,6 +72,7 @@ class DnsService(
 		}
 	}
 
-	private fun txtContent(host: String) = "app=$applicationName;host=$host;ipAddress=$ipAddress"
+	private fun txtContent(host: String) =
+		"app=${properties.name};host=$host;ipAddress=${properties.cloudflare.ipAddress}"
 
 }

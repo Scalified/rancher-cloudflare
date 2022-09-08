@@ -26,14 +26,28 @@
 package com.scalified.rancher.cloudflare.infrastructure
 
 import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.boot.context.properties.ConstructorBinding
 
 /**
  * @author shell
  * @since 2019-07-29
  */
-@ConfigurationProperties("app")
-class AppProperties {
+@ConstructorBinding
+@ConfigurationProperties
+data class AppProperties(val name: String, val schedule: String, val rancher: Rancher, val cloudflare: Cloudflare) {
 
-	lateinit var schedule: String
+	data class Rancher(
+		val url: String,
+		val accessKey: String,
+		val secretKey: String
+	)
+
+	data class Cloudflare(
+		val zoneId: String,
+		val apiKey: String,
+		val email: String,
+		val ipAddress: String,
+		val proxied: Boolean
+	)
 
 }

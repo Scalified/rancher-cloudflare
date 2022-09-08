@@ -1,8 +1,7 @@
 # Rancher Cloudflare #
 
+[![Build Status](https://github.com/Scalified/rancher-cloudflare/actions/workflows/docker-image.yml/badge.svg)](https://github.com/Scalified/rancher-cloudflare/actions)
 [![Docker Pulls](https://img.shields.io/docker/pulls/scalified/rancher-cloudflare.svg)](https://hub.docker.com/r/scalified/rancher-cloudflare)
-[![](https://images.microbadger.com/badges/image/scalified/rancher-cloudflare.svg)](https://microbadger.com/images/scalified/rancher-cloudflare)
-[![](https://images.microbadger.com/badges/version/scalified/rancher-cloudflare.svg)](https://microbadger.com/images/scalified/rancher-cloudflare)
 
 ## Description
 
@@ -14,9 +13,10 @@ The project automatically synchronizes [Rancher](https://rancher.com/) ingress r
 
 ## Version
 
-| Version    | Rancher API Version | Cloudflare API Version |
-|------------|---------------------|------------------------|
-| **latest** |         v3          |            v4          |
+| Version              | Rancher API Version | Cloudflare API Version |
+|----------------------|---------------------|------------------------|
+| **1.1.0** **latest** | v3                  | v4                     |
+| **1.0.0**            | v3                  | v4                     |
 
 ### How-To
 
@@ -24,15 +24,16 @@ The project automatically synchronizes [Rancher](https://rancher.com/) ingress r
 
 The following environment variables must be provided:
 
-| Environment Variable | Example                                                | Description                                                                                             |
-|----------------------|--------------------------------------------------------|---------------------------------------------------------------------------------------------------------|
-| RANCHER_URL          | https://rancher.example.com                            | Rancher Server URL                                                                                      |
-| RANCHER_ACCESS_KEY   | token-dukhk                                            | The token’s username. See [API Keys](https://rancher.com/docs/rancher/v2.x/en/user-settings/api-keys/)  |
-| RANCHER_SECRET_KEY   | f6sdd2gt2t5gs779fpg9km6fl4d46nkfcnknqzjwszwb6jm4qfh48y | The token’s password. See [API Keys](https://rancher.com/docs/rancher/v2.x/en/user-settings/api-keys/)  |
-| IP_ADDRESS           | 50.20.120.200                                          | IP Address to be written as A record content                                                            |
-| CLOUDFLARE_ZONE_ID   | 4ff62716278c165a1592992bde7ff64d                       | Cloudflare Zone Id. See [Api Documentation](https://api.cloudflare.com/#getting-started-resource-ids)   |
-| CLOUDFLARE_API_KEY   | 794ce33565fec7fc069e0cdfb9c43a0dd1221                  | Cloudflare API Key See [Api Documentation](https://api.cloudflare.com/#getting-started-resource-ids)    |
-| CLOUDFLARE_EMAIL     | mail@example.com                                       | Cloudflare account email                                                                                |
+| Environment Variable  | Example                                                | Description                                                                                            |
+|-----------------------|--------------------------------------------------------|--------------------------------------------------------------------------------------------------------|
+| RANCHER_URL           | https://rancher.example.com                            | Rancher Server URL                                                                                     |
+| RANCHER_ACCESS_KEY    | token-dukhk                                            | The token’s username. See [API Keys](https://rancher.com/docs/rancher/v2.x/en/user-settings/api-keys/) |
+| RANCHER_SECRET_KEY    | f6sdd2gt2t5gs779fpg9km6fl4d46nkfcnknqzjwszwb6jm4qfh48y | The token’s password. See [API Keys](https://rancher.com/docs/rancher/v2.x/en/user-settings/api-keys/) |
+| CLOUDFLARE_IP_ADDRESS | 50.20.120.200                                          | IP Address to be written as A record content                                                           |
+| CLOUDFLARE_PROXIED    | false                                                  | Whether proxy needs to be enabled on Cloudflare                                                        |
+| CLOUDFLARE_ZONE_ID    | 4ff62716278c165a1592992bde7ff64d                       | Cloudflare Zone Id. See [Api Documentation](https://api.cloudflare.com/#getting-started-resource-ids)  |
+| CLOUDFLARE_API_KEY    | 794ce33565fec7fc069e0cdfb9c43a0dd1221                  | Cloudflare API Key See [Api Documentation](https://api.cloudflare.com/#getting-started-resource-ids)   |
+| CLOUDFLARE_EMAIL      | mail@example.com                                       | Cloudflare account email                                                                               |
 
 #### Assembling
 

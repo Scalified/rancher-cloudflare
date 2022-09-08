@@ -33,11 +33,12 @@ import com.scalified.rancher.cloudflare.domain.rancher.RancherClient
  */
 class IngressService(private val client: RancherClient) {
 
-	fun hosts(): List<String> = client.projects().filter { project -> project.name != "System" }
-			.flatMap { project ->
-				client.ingresses(project.id)
-			}
-			.flatMap { it.rules }
-			.map { it.host }
+	fun hosts(): List<String> = client.projects()
+		.filter { project -> project.name != "System" }
+		.flatMap { project ->
+			client.ingresses(project.id)
+		}
+		.flatMap { it.rules }
+		.map { it.host }
 
 }

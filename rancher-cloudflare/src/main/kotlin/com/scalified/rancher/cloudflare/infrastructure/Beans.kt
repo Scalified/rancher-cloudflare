@@ -31,7 +31,6 @@ import com.scalified.rancher.cloudflare.domain.rancher.RancherClient
 import com.scalified.rancher.cloudflare.domain.rancher.ingress.IngressService
 import com.scalified.rancher.cloudflare.domain.update.UpdateScheduler
 import com.scalified.rancher.cloudflare.domain.update.UpdateService
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer
 import org.springframework.context.support.beans
 
 /**
@@ -48,12 +47,5 @@ fun beans() = beans {
 	bean<DnsService>()
 	bean<UpdateService>()
 	bean<UpdateScheduler>()
-
-	bean {
-		PropertySourcesPlaceholderConfigurer().apply {
-			setPlaceholderPrefix("%{")
-			setIgnoreUnresolvablePlaceholders(true)
-		}
-	}
 
 }

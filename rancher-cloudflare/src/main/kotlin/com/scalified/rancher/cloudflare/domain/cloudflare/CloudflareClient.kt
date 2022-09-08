@@ -26,6 +26,7 @@
 package com.scalified.rancher.cloudflare.domain.cloudflare
 
 import com.scalified.rancher.cloudflare.domain.cloudflare.dns.DnsRecord
+import com.scalified.rancher.cloudflare.infrastructure.AppProperties
 import com.scalified.rancher.cloudflare.infrastructure.commons.HealthResponseErrorHandler
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
@@ -44,27 +45,23 @@ import java.util.concurrent.atomic.AtomicReference
  */
 private val logger = KotlinLogging.logger {}
 
-class CloudflareClient(
-		@Value("%{CLOUDFLARE_EMAIL}") private val email: String,
-		@Value("%{CLOUDFLARE_ZONE_ID}") private val zoneId: String,
-		@Value("%{CLOUDFLARE_API_KEY}") private val apiKey: String
-) : HealthIndicator {
+class CloudflareClient(private val properties: AppProperties) : HealthIndicator {
 
 	private val client = RestTemplateBuilder().interceptors(
-			listOf(ClientHttpRequestInterceptor { request, body, execution ->
-				request.headers["X-Auth-Email"] = listOf(email)
-				request.headers["X-Auth-Key"] = listOf(apiKey)
-				execution.execute(request, body)
-			})
-	).rootUri("https://api.cloudflare.com/client/v4/zones/$zoneId")
-			.errorHandler(HealthResponseErrorHandler(health))
-			.build()
+		listOf(ClientHttpRequestInterceptor { request, body, execution ->
+			request.headers["X-Auth-Email"] = listOf(properties.cloudflare.email)
+			request.headers["X-Auth-Key"] = listOf(properties.cloudflare.apiKey)
+			execution.execute(request, body)
+		})
+	).rootUri("https://api.cloudflare.com/client/v4/zones/${properties.cloudflare.zoneId}")
+		.errorHandler(HealthResponseErrorHandler(health))
+		.build()
 
 	fun records(): List<DnsRecord> {
 		fun records(page: Int): List<DnsRecord> {
 			val result = client.getForObject<DnsRecordsGetDto>("/dns_records?page=$page&per_page=100")
-			val pageCount = result?.resultInfo?.pageCount ?: page
-			val records = result?.records.orEmpty()
+			val pageCount = result.resultInfo.pageCount
+			val records = result.records
 			return if (pageCount > page) records + records(page + 1) else records
 		}
 
@@ -78,7 +75,7 @@ class CloudflareClient(
 		val result = client.postForObject<DnsRecordPostResponseDto>("/dns_records", HttpEntity(record))
 		health.set(Health.up().build())
 		logger.debug { "Added Cloudflare $record DNS record" }
-		return record.copy(id = result?.dnsRecord?.id)
+		return record.copy(id = result.dnsRecord.id)
 	}
 
 	fun remove(id: String) {

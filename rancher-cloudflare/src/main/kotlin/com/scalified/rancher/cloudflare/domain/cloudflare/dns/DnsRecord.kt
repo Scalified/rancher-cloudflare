@@ -33,9 +33,9 @@ const val A = "A"
 const val TXT = "TXT"
 
 data class DnsRecord(
-		val type: String,
-		val name: String,
-		val content: String? = null,
-		val proxied: Boolean? = null,
-		val id: String? = null
+	val type: String,
+	val name: String,
+	val content: String? = null,
+	val proxied: Boolean? = null,
+	val id: String? = null
 )

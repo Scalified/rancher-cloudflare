@@ -36,7 +36,7 @@ private val logger = KotlinLogging.logger {}
 
 class UpdateScheduler(private val updateService: UpdateService) {
 
-	@Scheduled(cron = "%{app.schedule}")
+	@Scheduled(cron = "\${schedule}")
 	fun execute() {
 		logger.trace { "Update schedule timer fired" }
 		updateService.update()

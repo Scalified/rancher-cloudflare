@@ -27,13 +27,13 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
-	val kotlinVersion = "1.3.21"
+	val kotlinVersion = "1.7.10"
 	kotlin("jvm") version kotlinVersion
 	kotlin("kapt") version kotlinVersion
 	kotlin("plugin.spring") version kotlinVersion
 
-	id("org.springframework.boot") version "2.1.6.RELEASE"
-	id("io.spring.dependency-management") version "1.0.8.RELEASE"
+	id("org.springframework.boot") version "2.7.3"
+	id("io.spring.dependency-management") version "1.0.13.RELEASE"
 }
 
 tasks.withType<KotlinCompile> {
@@ -53,6 +53,7 @@ tasks.withType<BootJar> {
 
 dependencies {
 	kapt("org.springframework.boot:spring-boot-configuration-processor")
+	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
 	implementation(kotlin("reflect"))
 	implementation(kotlin("stdlib-jdk8"))
@@ -60,18 +61,10 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 
-	implementation("io.github.microutils:kotlin-logging:1.6.24")
-	implementation("org.apache.commons:commons-lang3:3.8.1")
+	implementation("io.github.microutils:kotlin-logging:2.1.23")
+	implementation("org.apache.commons:commons-lang3:3.12.0")
 	implementation("org.hibernate.validator:hibernate-validator")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
 	runtimeOnly("org.springframework.boot:spring-boot-devtools")
-
-	testImplementation("org.springframework.boot:spring-boot-starter-test") {
-		exclude(group = "junit", module = "junit")
-	}
-	testImplementation("org.junit.jupiter:junit-jupiter-api:${project.extra["junitVersion"]}")
-	testImplementation("org.junit.jupiter:junit-jupiter-params:${project.extra["junitVersion"]}")
-	testImplementation("org.junit.jupiter:junit-jupiter:${project.extra["junitVersion"]}")
-	testImplementation("org.mockito:mockito-core:3.0.0")
 }
