@@ -1,4 +1,4 @@
-# Rancher Cloudflare #
+# Rancher Cloudflare
 
 [![Build Status](https://github.com/Scalified/rancher-cloudflare/actions/workflows/docker-image.yml/badge.svg)](https://github.com/Scalified/rancher-cloudflare/actions)
 [![Docker Pulls](https://img.shields.io/docker/pulls/scalified/rancher-cloudflare.svg)](https://hub.docker.com/r/scalified/rancher-cloudflare)
